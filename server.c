@@ -19,9 +19,9 @@ void usage(int argc, char **argv)
 
 char *get_full_filename(const char *str)
 {
-
-    const char *patterns[] = {".txt", ".cpp", ".c", ".py", ".tex", ".java"};
-    int numPatterns = sizeof(patterns) / sizeof(patterns[0]);
+    // printf("\n----%s----\n",str);
+    const char *patterns[] = {".txt",  ".c", ".cpp", ".py", ".tex", ".java"};
+    int numPatterns = 6;
 
     char *result = NULL;
 
@@ -42,14 +42,15 @@ char *get_full_filename(const char *str)
             {
 
                 int total_size = name_size + patternLength + 1;
-                result = (char *)malloc(total_size + 3);
+                result = (char *)calloc(5,(total_size + 1)*sizeof(char));
                 strncpy(result, str, total_size - 1);
 
                 break;
             }
         }
     }
-
+    printf("\n----%s----\n",str);
+    printf("\n----%s----\n",result);
     return result;
 }
 void createFile(const char *fileName, const char *fileContent)
@@ -122,16 +123,19 @@ int main(int argc, char **argv)
             size_t count = recv(csock, buf, BUFSZ - 1, 0);
            
             char *full_file_name = get_full_filename(buf);
+            // printf("\n----%s----\n",full_file_name);
             int already_exists = 0;
             // removing complete path of filename
             char *file_name = strrchr(full_file_name, '/');
-            file_name++;
             
+            file_name++;
+            // printf("\n----%s----\n",file_name);
             if (access(file_name, F_OK) != -1)
             {
                 already_exists = 1;
             }
             char file_content[BUFSIZ];
+            memset(file_content, 0, BUFSIZ);
 
             // removing the name from message
             strcpy(file_content, buf + strlen(full_file_name));
@@ -142,10 +146,11 @@ int main(int argc, char **argv)
             {
                 *slashPtr = '\0';
             }
-
+            // printf("\n----%s----\n",file_content);
             createFile(file_name, file_content);
 
             char answer[100];
+            memset(buf, 0, BUFSIZ);
             strcpy(answer, full_file_name);
 
             if (already_exists)
