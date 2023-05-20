@@ -173,15 +173,17 @@ int main(int argc, char **argv) {
 		size_t count=0;
 		while (1)
 		{
+			
 			int bytes_to_send = strlen(msg_to_send)-bytes_sent;
 			if (bytes_to_send> 500){
 				bytes_to_send =500;
 			}
 			count = send(s, msg_to_send+bytes_sent,bytes_to_send +1, 0);
-			bytes_sent=bytes_sent+bytes_to_send;
+			bytes_sent+=bytes_to_send;
 			if (count != bytes_to_send+1) {
 				logexit("send");
 			}
+			//last message was sent
 			if(bytes_to_send<500)
 			break;
 		}

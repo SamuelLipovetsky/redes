@@ -49,11 +49,10 @@ char *get_full_filename(const char *str)
             }
         }
     }
-    printf("\n----%s----\n", str);
-    printf("\n----%s----\n", result);
+   
     return result;
 }
-void createFile(const char *fileName, const char *fileContent, char mode[1])
+void create_update_file(const char *fileName, const char *fileContent, char mode[1])
 {
     FILE *file = fopen(fileName, mode);
     if (file == NULL)
@@ -119,17 +118,15 @@ int main(int argc, char **argv)
         }
 
         memset(buf, 0, BUFSIZ);
-
+        //reads the first message that should contain the name of the file
         size_t count = recv(csock, buf, 500, 0);
-
         char *full_file_name = get_full_filename(buf);
-
-        int already_exists = 0;
+       
         // removing complete path of filename
         char *file_name = strrchr(full_file_name, '/');
-
         file_name++;
-
+        //flag for already existing files
+        int already_exists = 0;
         if (access(file_name, F_OK) != -1)
         {
             already_exists = 1;
@@ -139,14 +136,15 @@ int main(int argc, char **argv)
 
         // removing the name from message
         strcpy(file_content, buf + strlen(full_file_name));
-
-        createFile(file_name, file_content, "w");
-
+        if (count==500){
+        create_update_file(file_name, file_content, "w");
+        
         while (1)
         {
             memset(buf, 0, BUFSIZ);
             size_t count = recv(csock, buf, 500, 0);
             printf("\n--%s--\n",buf);
+            //searching for /end
             char *end = strrchr(buf, '/');
             if (end != NULL)
             {
@@ -155,20 +153,29 @@ int main(int argc, char **argv)
                 {
                     *slashPtr = '\0';
                 }
-                 createFile(file_name, buf, "a");
+                 create_update_file(file_name, buf, "a");
                  break;
 
             }
-            createFile(file_name, buf, "a");
+            //no end found
+            create_update_file(file_name, buf, "a");
+
+        }
+        }
+        else{
+             char *end = strrchr(file_content, '/');
+            if (end != NULL)
+            {
+                char *slashPtr = strchr(file_content, '/');
+                if (slashPtr != NULL)
+                {
+                    *slashPtr = '\0';
+                }
+            }
+             create_update_file(file_name, file_content, "w");
 
         }
 
-        // removing the /end from message
-        char *slashPtr = strchr(file_content, '/');
-        if (slashPtr != NULL)
-        {
-            *slashPtr = '\0';
-        }
 
         char answer[100];
         memset(buf, 0, BUFSIZ);
