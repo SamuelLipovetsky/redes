@@ -19,7 +19,7 @@ void usage(int argc, char **argv)
 
 char *get_full_filename(const char *str)
 {
-    // printf("\n----%s----\n",str);
+
     const char *patterns[] = {".txt", ".c", ".cpp", ".py", ".tex", ".java"};
     int numPatterns = 6;
 
@@ -49,7 +49,7 @@ char *get_full_filename(const char *str)
             }
         }
     }
-   
+
     return result;
 }
 void create_update_file(const char *fileName, const char *fileContent, char mode[1])
@@ -64,11 +64,11 @@ void create_update_file(const char *fileName, const char *fileContent, char mode
     fprintf(file, "%s", fileContent);
 
     fclose(file);
-    // printf("File created successfully: %s\n", fileName);
 }
 
 int main(int argc, char **argv)
 {
+
     if (argc < 3)
     {
         usage(argc, argv);
@@ -108,6 +108,7 @@ int main(int argc, char **argv)
     struct sockaddr *caddr = (struct sockaddr *)(&cstorage);
     socklen_t caddrlen = sizeof(cstorage);
     char buf[BUFSZ];
+
     while (1)
     {
 
@@ -116,78 +117,91 @@ int main(int argc, char **argv)
         {
             logexit("accept");
         }
-
+        char *full_file_name;
         memset(buf, 0, BUFSIZ);
-        //reads the first message that should contain the name of the file
+        // reads the first message that should contain the name of the file
+
         size_t count = recv(csock, buf, 501, 0);
-        char *full_file_name = get_full_filename(buf);
-       
-        // removing complete path of filename
-        char *file_name = strrchr(full_file_name, '/');
-        file_name++;
-        //flag for already existing files
+
+        // flag for exit command
+        int exit = 1;
+        // flag for already existing files
         int already_exists = 0;
-        if (access(file_name, F_OK) != -1)
+        // checks for exit command
+    
+        if (strcmp(buf, "exit"))
         {
-            already_exists = 1;
-        }
-        char file_content[BUFSIZ];
-        memset(file_content, 0, BUFSIZ);
+          //no exit command  
 
-        // removing the name from message
-        strcpy(file_content, buf + strlen(full_file_name));
-        // printf("\n%d\n",count);
-        if (count>500){
-        create_update_file(file_name, file_content, "w");
-        
-        while (1)
-        {
-            memset(buf, 0, BUFSIZ);
-            size_t count = recv(csock, buf, 501, 0);
-            // printf("\n--%s--\n",buf);
-            //searching for /end
-            char *end = strrchr(buf, '/');
-            if (end != NULL)
+            exit = 0;
+            full_file_name = get_full_filename(buf);
+
+            // removing complete path of filename
+            char *file_name = strrchr(full_file_name, '/');
+            file_name++;
+
+            if (access(file_name, F_OK) != -1)
             {
-                char *slashPtr = strchr(buf, '/');
-                if (slashPtr != NULL)
-                {
-                    *slashPtr = '\0';
-                }
-                 create_update_file(file_name, buf, "a");
-                 break;
-
+                already_exists = 1;
             }
-            //no end found
-            create_update_file(file_name, buf, "a");
-
-        }
-        }
-        else{
-             char *end = strrchr(file_content, '/');
-            if (end != NULL)
+            char file_content[BUFSIZ];
+            // removing the name from message
+            strcpy(file_content, buf + strlen(full_file_name));
+            if (count > 500)
             {
-                char *slashPtr = strchr(file_content, '/');
-                if (slashPtr != NULL)
+                create_update_file(file_name, file_content, "w");
+
+                while (1)
                 {
-                    *slashPtr = '\0';
+                    memset(buf, 0, BUFSIZ);
+                    size_t count = recv(csock, buf, 501, 0);
+
+                    char *end = strrchr(buf, '\\');
+                    if (end != NULL)
+                    {
+                        char *slashPtr = strchr(buf, '\\');
+                        if (slashPtr != NULL)
+                        {
+                            *slashPtr = '\0';
+                        }
+                        create_update_file(file_name, buf, "a");
+                        break;
+                    }
+                    // no end found
+                    create_update_file(file_name, buf, "a");
                 }
             }
-             create_update_file(file_name, file_content, "w");
+            else
+            {
 
+                char *end = strrchr(file_content, '/');
+                if (end != NULL)
+                {
+                        *end= '\0';
+                    
+                }
+                create_update_file(file_name, file_content, "w");
+            }
         }
-
 
         char answer[100];
-        memset(buf, 0, BUFSIZ);
-        strcpy(answer, full_file_name);
 
-        if (already_exists)
+        if (exit)
         {
+
+            memset(answer, 0, 100);
+            strcpy(answer, "connection closed");
+
+            // break;
+        }
+        else if (already_exists)
+        {
+            strcpy(answer, full_file_name);
             strcat(answer, " file overwritten");
         }
         else
         {
+            strcpy(answer, full_file_name);
             strcat(answer, " received");
         }
 
@@ -200,6 +214,11 @@ int main(int argc, char **argv)
         free(full_file_name);
 
         close(csock);
+        if (exit)
+        {
+            close(s);
+            break;
+        }
     }
 
     exit(EXIT_SUCCESS);
