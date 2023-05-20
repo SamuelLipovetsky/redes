@@ -1,4 +1,4 @@
-#include "common.h"
+    #include "common.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -169,11 +169,24 @@ int main(int argc, char **argv) {
 
 		char * file_content = readFileToString(file_name);
 		char * msg_to_send = concatenateStrings(file_name,file_content);
-		// printf("----- %s---- \n",msg_to_send);
-		size_t count = send(s, msg_to_send, strlen(msg_to_send)+1, 0);
-		if (count != strlen(msg_to_send)+1) {
-			logexit("send");
+		int bytes_sent=0;
+		size_t count=0;
+		while (1)
+		{
+			int bytes_to_send = strlen(msg_to_send)-bytes_sent;
+			if (bytes_to_send> 500){
+				bytes_to_send =500;
+			}
+			count = send(s, msg_to_send+bytes_sent,bytes_to_send +1, 0);
+			bytes_sent=bytes_sent+bytes_to_send;
+			if (count != bytes_to_send+1) {
+				logexit("send");
+			}
+			if(bytes_to_send<500)
+			break;
 		}
+		
+	
 
 		memset(buf, 0, BUFSZ);
 		unsigned total = 0;

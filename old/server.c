@@ -19,7 +19,7 @@ void usage(int argc, char **argv)
 
 char *get_full_filename(const char *str)
 {
-    // printf("\n----%s----\n",str);
+
     const char *patterns[] = {".txt", ".c", ".cpp", ".py", ".tex", ".java"};
     int numPatterns = 6;
 
@@ -49,11 +49,10 @@ char *get_full_filename(const char *str)
             }
         }
     }
-    printf("\n----%s----\n", str);
-    printf("\n----%s----\n", result);
+
     return result;
 }
-void createFile(const char *fileName, const char *fileContent, char mode[1])
+void update_file(const char *fileName, const char *fileContent, char mode[1])
 {
     FILE *file = fopen(fileName, mode);
     if (file == NULL)
@@ -63,9 +62,9 @@ void createFile(const char *fileName, const char *fileContent, char mode[1])
     }
 
     fprintf(file, "%s", fileContent);
-
+    // printf("----------\n %s \n---------",fileContent);
     fclose(file);
-    // printf("File created successfully: %s\n", fileName);
+    
 }
 
 int main(int argc, char **argv)
@@ -109,6 +108,7 @@ int main(int argc, char **argv)
     struct sockaddr *caddr = (struct sockaddr *)(&cstorage);
     socklen_t caddrlen = sizeof(cstorage);
     char buf[BUFSZ];
+    char answer[100];
     while (1)
     {
 
@@ -119,49 +119,55 @@ int main(int argc, char **argv)
         }
 
         memset(buf, 0, BUFSIZ);
+        //name of file should be in the first 500 bytes of the text
 
         size_t count = recv(csock, buf, 500, 0);
-
         char *full_file_name = get_full_filename(buf);
 
         int already_exists = 0;
-        // removing complete path of filename
+
         char *file_name = strrchr(full_file_name, '/');
 
         file_name++;
 
-        if (access(file_name, F_OK) != -1)
-        {
-            already_exists = 1;
-        }
         char file_content[BUFSIZ];
         memset(file_content, 0, BUFSIZ);
 
         // removing the name from message
         strcpy(file_content, buf + strlen(full_file_name));
 
-        createFile(file_name, file_content, "w");
-
+        if (access(file_name, F_OK) != -1)
+        {
+            already_exists = 1;
+            update_file(file_name,file_content,"w");
+        }
+        else{
+            update_file(file_name,file_content,"a");
+        }
+        // if(count>500){
+     
         while (1)
         {
             memset(buf, 0, BUFSIZ);
-            size_t count = recv(csock, buf, 500, 0);
+            size_t received =recv(csock, buf, 501, 0);
+
+            count+=received;
+            
             printf("\n--%s--\n",buf);
-            char *end = strrchr(buf, '/');
-            if (end != NULL)
-            {
-                char *slashPtr = strchr(buf, '/');
-                if (slashPtr != NULL)
-                {
-                    *slashPtr = '\0';
-                }
-                 createFile(file_name, buf, "a");
-                 break;
-
+            update_file(file_name,buf,"a");
+          
+            char* found = strchr(buf, '/');
+        if (found!=NULL){
+                printf("\n------looool-------\n");
+                break;
             }
-            createFile(file_name, buf, "a");
-
+          
         }
+       
+      
+        
+        
+     
 
         // removing the /end from message
         char *slashPtr = strchr(file_content, '/');
@@ -170,9 +176,10 @@ int main(int argc, char **argv)
             *slashPtr = '\0';
         }
 
-        char answer[100];
-        memset(buf, 0, BUFSIZ);
-        strcpy(answer, full_file_name);
+       
+       
+        memset(answer, 0, BUFSIZ);
+        strcpy(answer, file_name);
 
         if (already_exists)
         {
