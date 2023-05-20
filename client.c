@@ -261,11 +261,11 @@ int main(int argc, char **argv)
 
             char msg_buf[BUFSZ];
             memset(msg_buf, 0, BUFSIZ);
-            strcpy(msg_buf, "exit");
+            strcpy(msg_buf, "exit\\end");
 
-            size_t count = send(s, msg_buf, 6, 0);
+            size_t count = send(s, msg_buf, 10, 0);
 
-            if (count != 6)
+            if (count != 10)
             {
                 logexit("send");
             }
@@ -284,6 +284,7 @@ int main(int argc, char **argv)
             }
             printf("%s\n", buf);
             close(s);
+            break;
         }
 
         // close(s);

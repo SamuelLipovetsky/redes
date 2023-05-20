@@ -129,7 +129,7 @@ int main(int argc, char **argv)
         int already_exists = 0;
         // checks for exit command
     
-        if (strcmp(buf, "exit"))
+        if (strcmp(buf, "exit\\end"))
         {
           //no exit command  
 
@@ -191,17 +191,23 @@ int main(int argc, char **argv)
 
             memset(answer, 0, 100);
             strcpy(answer, "connection closed");
+            printf("connection closed\n");
 
             // break;
         }
         else if (already_exists)
         {
-            strcpy(answer, full_file_name);
+            memset(answer, 0, 100);
+            strcat(answer,"file ");
+            strcat(answer, full_file_name);
             strcat(answer, " file overwritten");
         }
         else
-        {
-            strcpy(answer, full_file_name);
+        {   
+            memset(answer, 0, 100);
+
+            strcat(answer,"file ");
+            strcat(answer, full_file_name); 
             strcat(answer, " received");
         }
 
