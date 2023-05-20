@@ -1,4 +1,4 @@
-    #include "common.h"
+#include "common.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,66 +10,57 @@
 #include <arpa/inet.h>
 
 #define BUFSZ 4000
-void usage(int argc, char **argv) {
-	printf("usage: %s <server IP> <server port>\n", argv[0]);
-	printf("example: %s 127.0.0.1 51511\n", argv[0]);
-	exit(EXIT_FAILURE);
+void usage(int argc, char **argv)
+{
+    printf("usage: %s <server IP> <server port>\n", argv[0]);
+    printf("example: %s 127.0.0.1 51511\n", argv[0]);
+    exit(EXIT_FAILURE);
 }
 
-char* concatenateStrings(const char* str1, const char* str2) {
-    size_t length1 = strlen(str1);
-    size_t length2 = strlen(str2);
-    size_t length3 = length1 + length2 + strlen("\\END") + 1;
 
-    char* result = (char*)malloc(length3 * sizeof(char));
-    if (result == NULL) {
-        fprintf(stderr, "Memory allocation failed.\n");
-        return NULL;
-    }
 
-    strcpy(result, str1);
-    strcat(result, str2);
-    strcat(result, "/end");
+int divideString(const char *str, char **remainingString)
+{
+    const char *selectFilePrefix = "select file";
+    const char *sendFilePrefix = "send file";
 
-    return result;
-}
+    if (strncmp(str, selectFilePrefix, strlen(selectFilePrefix)) == 0)
+    {
 
-int divideString(const char* str, char** remainingString) {
-    const char* selectFilePrefix = "select file";
-    const char* sendFilePrefix = "send file";
+        *remainingString = strdup(str + strlen(selectFilePrefix) + 1);
 
-  
-    if (strncmp(str, selectFilePrefix, strlen(selectFilePrefix)) == 0) {
-     
-        *remainingString = strdup(str + strlen(selectFilePrefix)+1);
-		
-		size_t length = strlen(*remainingString);
-        if (length > 0 && (*remainingString)[length - 1] == '\n') {
+        size_t length = strlen(*remainingString);
+        if (length > 0 && (*remainingString)[length - 1] == '\n')
+        {
             (*remainingString)[length - 1] = '\0';
         }
         return 1;
     }
- 
-    else if (strncmp(str, sendFilePrefix, strlen(sendFilePrefix)) == 0) {
-      
+
+    else if (strncmp(str, sendFilePrefix, strlen(sendFilePrefix)) == 0)
+    {
+
         return 0;
     }
 
     return -1;
 }
-int endsWithValidExtension(const char* str) {
-    const char* validExtensions[] = {".txt", ".c", ".cpp", ".py", ".tex", ".java"};
+int endsWithValidExtension(const char *str)
+{
+    const char *validExtensions[] = {".txt", ".c", ".cpp", ".py", ".tex", ".java"};
     int numValidExtensions = 6;
 
     int length = strlen(str);
 
-    if (length >= 4) {
+    if (length >= 4)
+    {
         // const char* lastFourChars = str + length - 4;
-		const char* extension = strrchr(str, '.');
-		
+        const char *extension = strrchr(str, '.');
 
-        for (int i = 0; i < numValidExtensions; i++) {
-            if (strcmp(extension, validExtensions[i]) == 0) {
+        for (int i = 0; i < numValidExtensions; i++)
+        {
+            if (strcmp(extension, validExtensions[i]) == 0)
+            {
                 return 1; // True
             }
         }
@@ -80,134 +71,158 @@ int endsWithValidExtension(const char* str) {
 #include <stdio.h>
 #include <stdlib.h>
 
-char* readFileToString(const char* filename) {
-    FILE* file = fopen(filename, "rb");
-    if (file == NULL) {
-        fprintf(stderr, "Failed to open file: %s\n", filename);
-        return NULL;
+void buf_file_range(FILE *file, long start, long end, char *buffer, long file_size, char *file_name)
+{
+    
+    if (start <= 0)
+    {
+        strcpy(buffer, file_name);
+        fseek(file, start, SEEK_SET);
+        long length = end - start;
+        fread(buffer + strlen(file_name), sizeof(char), length - strlen(file_name), file);
     }
+    else if (end >= file_size)
+    {
+        fseek(file, start, SEEK_SET);
+        long length = file_size - start;
+        fread(buffer, sizeof(char), length, file);
+        strcat(buffer,"/end");
+       
+    }
+    else
+    {
+        long length = end - start;
+        fseek(file, start, SEEK_SET);
 
+        fread(buffer, sizeof(char), length, file);
+    }
+   
+}
+long get_file_size(FILE *file)
+{
     fseek(file, 0, SEEK_END);
-    long fileLength = ftell(file);
+    long size = ftell(file);
     fseek(file, 0, SEEK_SET);
-
-    char* buffer = (char*)malloc(fileLength + 1);
-    if (buffer == NULL) {
-        fprintf(stderr, "Failed to allocate memory for file contents.\n");
-        fclose(file);
-        return NULL;
-    }
-
-    size_t bytesRead = fread(buffer, 1, fileLength, file);
-    if (bytesRead != fileLength) {
-        fprintf(stderr, "Error reading file: %s\n", filename);
-        fclose(file);
-        free(buffer);
-        return NULL;
-    }
-    buffer[fileLength] = '\0';
-
-    fclose(file);
-    return buffer;
+    return size;
 }
 
+int main(int argc, char **argv)
+{
+    if (argc < 3)
+    {
+        usage(argc, argv);
+    }
 
-int main(int argc, char **argv) {
-	if (argc < 3) {
-		usage(argc, argv);
-	}
+    int file_selected = 0;
+    char *file_name;
+    while (1)
+    {
+        char buf[BUFSZ];
+        memset(buf, 0, BUFSZ);
 
-	// printf("connected to %s\n", addrstr);
-	int file_selected =0;
-	char* file_name;
-	while (1)
-	{
-	char buf[BUFSZ];
-	memset(buf, 0, BUFSZ);
-	// printf("Comando ");
-	fgets(buf, BUFSZ-1, stdin);
-	
-	
-	int command_type=divideString(buf,&file_name);
-	// select file
+        fgets(buf, BUFSZ - 1, stdin);
 
-	if (command_type==1){
-	 	if (!endsWithValidExtension(file_name)){
-			file_selected=0;
-			printf("%s not valid! \n", file_name);
-		}
-		else if (access(file_name, F_OK) == -1){
-			file_selected=0;
-			printf("%s does not exist \n",file_name);
-		}
-		else {
-			file_selected=1;
-			printf("%s selected \n",file_name);
-		}
-	}
-	else if( command_type==0){
-		
-		struct sockaddr_storage storage;
-		if (0 != addrparse(argv[1], argv[2], &storage)) {
-			usage(argc, argv);
-		}
+        int command_type = divideString(buf, &file_name);
+        // select file
 
-		int s;
-		s = socket(storage.ss_family, SOCK_STREAM, 0);
-		if (s == -1) {
-			logexit("socket");
-		}
-		struct sockaddr *addr = (struct sockaddr *)(&storage);
-		if (0 != connect(s, addr, sizeof(storage))) {
-			logexit("connect");
-		}
+        if (command_type == 1)
+        {
+            if (!endsWithValidExtension(file_name))
+            {
+                file_selected = 0;
+                printf("%s not valid! \n", file_name);
+            }
+            else if (access(file_name, F_OK) == -1)
+            {
+                file_selected = 0;
+                printf("%s does not exist \n", file_name);
+            }
+            else
+            {
+                file_selected = 1;
+                printf("%s selected \n", file_name);
+            }
+        }
+        else if (command_type == 0)
+        {
 
-		char addrstr[BUFSZ];
-		addrtostr(addr, addrstr, BUFSZ);
+            struct sockaddr_storage storage;
+            if (0 != addrparse(argv[1], argv[2], &storage))
+            {
+                usage(argc, argv);
+            }
 
-		if (file_selected==1){
+            int s;
+            s = socket(storage.ss_family, SOCK_STREAM, 0);
+            if (s == -1)
+            {
+                logexit("socket");
+            }
+            struct sockaddr *addr = (struct sockaddr *)(&storage);
+            if (0 != connect(s, addr, sizeof(storage)))
+            {
+                logexit("connect");
+            }
 
-		char * file_content = readFileToString(file_name);
-		char * msg_to_send = concatenateStrings(file_name,file_content);
-		int bytes_sent=0;
-		size_t count=0;
-		while (1)
-		{
-			
-			int bytes_to_send = strlen(msg_to_send)-bytes_sent;
-			if (bytes_to_send> 500){
-				bytes_to_send =500;
-			}
-			count = send(s, msg_to_send+bytes_sent,bytes_to_send +1, 0);
-			bytes_sent+=bytes_to_send;
-			if (count != bytes_to_send+1) {
-				logexit("send");
-			}
-			//last message was sent
-			if(bytes_to_send<500)
-			break;
-		}
-		
-	
+            char addrstr[BUFSZ];
+            addrtostr(addr, addrstr, BUFSZ);
 
-		memset(buf, 0, BUFSZ);
-		unsigned total = 0;
-		while(1) {
-			count = recv(s, buf + total, BUFSZ - total, 0);
-			if (count == 0) {
-				// Connection terminated.
-				break;
-			}
-			total += count;
-		}
-		printf("%s\n",buf);
-		close(s);
-		}
-		else{
-			printf("no file selected! \n");
-		}
-	}
-	}
+            if (file_selected == 1)
+            {
 
-	exit(EXIT_SUCCESS);
+                int bytes_sent = -strlen(file_name);
+                size_t count = 0;
+                char msg_buf[BUFSZ];
+                memset(msg_buf, 0, BUFSZ);
+
+                // size of header + content + strlen(/end)
+                FILE *file = fopen(file_name, "r");
+                long total_bites_to_send = get_file_size(file) + strlen(file_name) + 4;
+
+                while (1)
+                {
+                    memset(msg_buf, 0, BUFSZ);
+                    int bytes_to_send = total_bites_to_send - bytes_sent;
+                    if (bytes_to_send > 500)
+                    {
+                        bytes_to_send = 500;
+                    }
+                    buf_file_range(file, bytes_sent, bytes_sent + bytes_to_send, msg_buf, total_bites_to_send, file_name);
+
+                    count = send(s, msg_buf, bytes_to_send + 1, 0);
+
+                    bytes_sent += bytes_to_send;
+                    if (count != bytes_to_send + 1)
+                    {
+                        logexit("send");
+                    }
+                    // last message was sent
+                    if (bytes_to_send < 500)
+                        break;
+                }
+                fclose(file);
+
+                memset(buf, 0, BUFSZ);
+                unsigned total = 0;
+                while (1)
+                {
+                    count = recv(s, buf + total, BUFSZ - total, 0);
+                    if (count == 0)
+                    {
+                        // Connection terminated.
+                        break;
+                    }
+                    total += count;
+                }
+                printf("%s\n", buf);
+                close(s);
+            }
+            else
+            {
+                printf("no file selected! \n");
+            }
+        }
+    }
+
+    exit(EXIT_SUCCESS);
 }

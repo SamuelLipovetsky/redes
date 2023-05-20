@@ -119,7 +119,7 @@ int main(int argc, char **argv)
 
         memset(buf, 0, BUFSIZ);
         //reads the first message that should contain the name of the file
-        size_t count = recv(csock, buf, 500, 0);
+        size_t count = recv(csock, buf, 501, 0);
         char *full_file_name = get_full_filename(buf);
        
         // removing complete path of filename
@@ -136,14 +136,15 @@ int main(int argc, char **argv)
 
         // removing the name from message
         strcpy(file_content, buf + strlen(full_file_name));
-        if (count==500){
+        // printf("\n%d\n",count);
+        if (count>500){
         create_update_file(file_name, file_content, "w");
         
         while (1)
         {
             memset(buf, 0, BUFSIZ);
-            size_t count = recv(csock, buf, 500, 0);
-            printf("\n--%s--\n",buf);
+            size_t count = recv(csock, buf, 501, 0);
+            // printf("\n--%s--\n",buf);
             //searching for /end
             char *end = strrchr(buf, '/');
             if (end != NULL)
