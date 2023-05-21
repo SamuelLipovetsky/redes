@@ -62,6 +62,7 @@ char *get_full_filename(const char *str)
 
     return result;
 }
+
 /*
 simple fucntion to create a file
 char *file_name = name of the file to be created
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
     {
         usage(argc, argv);
     }
-
+    //creating connection
     struct sockaddr_storage storage;
     if (0 != server_sockaddr_init(argv[1], argv[2], &storage))
     {
@@ -122,6 +123,7 @@ int main(int argc, char **argv)
     struct sockaddr *caddr = (struct sockaddr *)(&cstorage);
     socklen_t caddrlen = sizeof(cstorage);
     char buf[BUFSZ];
+    //accept , recv, send loop
     while (1)
     {
         int csock = accept(s, caddr, &caddrlen);
@@ -133,6 +135,7 @@ int main(int argc, char **argv)
         memset(buf, 0, BUFSIZ);
         char answer[100];
         char *full_file_name;
+
         // flags for exiting/overwritten messages
         int exit = 1;
         int already_exists = 0;
@@ -144,13 +147,14 @@ int main(int argc, char **argv)
             strcpy(answer, "error receiving file");
             exit = 0;
         }
-
+        
         else
         {
+            //checking for undefined commands
             full_file_name = get_full_filename(buf);
             if (full_file_name != NULL)
             {
-                //checking if file already exissts
+                //checking if file already exists
                 if (access(full_file_name, F_OK) != -1)
                 {
                     already_exists = 1;
