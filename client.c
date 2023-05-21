@@ -155,7 +155,8 @@ int main(int argc, char **argv)
         usage(argc, argv);
     }
     int file_selected = 0;
-    char *file_name;
+    char *file_name = calloc(100,sizeof(char));
+    char *file_name_temp = calloc(100,sizeof(char));
     while (1)
     {
         char buf[BUFSZ];
@@ -163,23 +164,23 @@ int main(int argc, char **argv)
         fgets(buf, BUFSZ - 1, stdin);
 
         // getting comand type and file name
-        int command_type = divide_string(buf, &file_name);
+        int command_type = divide_string(buf, &file_name_temp);
 
         // select file
         if (command_type == 1)
         {
-            if (!valid_extension(file_name))
+            if (!valid_extension(file_name_temp))
             {
-                file_selected = 0;
-                printf("%s not valid! \n", file_name);
+                printf("%s not valid! \n", file_name_temp);
             }
-            else if (access(file_name, F_OK) == -1)
+            else if (access(file_name_temp, F_OK) == -1)
             {
-                file_selected = 0;
-                printf("%s does not exist \n", file_name);
+                
+                printf("%s does not exist \n", file_name_temp);
             }
             else
             {
+                strcpy(file_name,file_name_temp);
                 file_selected = 1;
                 printf("%s selected \n", file_name);
             }
@@ -295,6 +296,8 @@ int main(int argc, char **argv)
         }
       
     }
+    free(file_name);
+    free(file_name_temp);
 
     exit(EXIT_SUCCESS);
 }
