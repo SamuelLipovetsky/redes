@@ -91,17 +91,15 @@ returns 1 if true , 0 if false
 */
 int valid_extension(const char *str)
 {
-    const char *validExtensions[] = {".txt", ".c", ".cpp", ".py", ".tex", ".java"};
-    int numValidExtensions = 6;
-
-    int length = strlen(str);
+    const char *valid_extensions[] = {".txt", ".c", ".cpp", ".py", ".tex", ".java"};
+    int num_valid_extensions = 6;
 
     const char *extension = strrchr(str, '.');
     if (extension != NULL)
     {
-        for (int i = 0; i < numValidExtensions; i++)
+        for (int i = 0; i < num_valid_extensions; i++)
         {
-            if (strcmp(extension, validExtensions[i]) == 0)
+            if (strcmp(extension, valid_extensions[i]) == 0)
             {
                 return 1; // True
             }
