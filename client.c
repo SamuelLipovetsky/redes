@@ -33,7 +33,7 @@ char *concatenate_strings(const char *str1, const char *str2)
     size_t length2 = strlen(str2);
     size_t length3 = length1 + length2 + strlen("\\end") + 1;
 
-    char *result = (char *)malloc(length3 * sizeof(char));
+    char *result = (char *)calloc(length3 , sizeof(char));
     if (result == NULL)
     {
         fprintf(stderr, "Memory allocation failed.\n");
@@ -91,7 +91,7 @@ returns 1 if true , 0 if false
 */
 int valid_extension(const char *str)
 {
-    const char *valid_extensions[] = {".txt", ".c", ".cpp", ".py", ".tex", ".java"};
+    const char *valid_extensions[] = {".txt",  ".cpp", ".py", ".tex", ".java",".c"};
     int num_valid_extensions = 6;
 
     const char *extension = strrchr(str, '.');
@@ -127,7 +127,7 @@ char *file_to_string(const char *filename)
     long file_length = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    char *buffer = (char *)malloc(file_length + 1);
+    char *buffer = (char *)calloc(file_length ,sizeof(char));
     if (buffer == NULL)
     {
         fprintf(stderr, "Failed to allocate memory for file contents.\n");
@@ -209,7 +209,7 @@ int main(int argc, char **argv)
                 {
                     logexit("connect");
                 }
-
+                
                 // creating body and header of message to be sent
                 char *file_content = file_to_string(file_name);
                 char *msg_to_send = concatenate_strings(file_name, file_content);
@@ -220,7 +220,9 @@ int main(int argc, char **argv)
                 {
                     logexit("send");
                 }
-
+            
+                free(file_content);
+                free(msg_to_send);
                 // waiting for response
                 memset(buf, 0, BUFSZ);
                 unsigned total = 0;
@@ -236,7 +238,7 @@ int main(int argc, char **argv)
                 // printing response and closing connection
                 printf("%s\n", buf);
                 close(s);
-                free(file_content);
+               
             }
             else
             {

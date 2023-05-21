@@ -1,0 +1,289 @@
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+select file /home/samuel/redes/testes/t1.txt
+send file 
+select file /home/samuel/redes/testes/t2.java
+send file 
+select file /home/samuel/redes/testes/t3.cpp
+send file 
+select file /home/samuel/redes/testes/t4.tex
+send file 
+select file /home/samuel/redes/testes/t5.py
+send file 
+select file /home/samuel/redes/testes/t6.c
+send file 
+exit

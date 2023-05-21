@@ -25,7 +25,7 @@ returns the full name of file to be created
 char *get_full_filename(const char *str)
 {
 
-    const char *patterns[] = {".txt", ".c", ".cpp", ".py", ".tex", ".java"};
+    const char *patterns[] = {".txt", ".cpp", ".py", ".tex", ".java",".c"};
     int num_patterns = 6;
 
     char *result = NULL;
