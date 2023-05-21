@@ -16,8 +16,13 @@ void usage(int argc, char **argv)
     printf("example: %s 127.0.0.1 51511\n", argv[0]);
     exit(EXIT_FAILURE);
 }
-
-char *concatenateStrings(const char *str1, const char *str2)
+/*
+Concatenates header - body - tails of message to be send
+char *str1 = header of message
+char *str = body of message
+Retuns pointer to full message to be send
+*/
+char *concatenate_strings(const char *str1, const char *str2)
 {
 
     // removig path from file name
@@ -41,39 +46,49 @@ char *concatenateStrings(const char *str1, const char *str2)
 
     return result;
 }
-
-int divide_string(const char *str, char **remainingString)
+/*
+Divide commands into command and file name
+char *str = full command read from input
+char **remainingString = file name read from input
+returns 0 if command was "send file"
+returns 1 if command was "select file"
+returns 2 if command was "exit"
+returns -1 if no command was found
+*/
+int divide_string(const char *str, char **remaining_string)
 {
-    const char *selectFilePrefix = "select file";
-    const char *sendFilePrefix = "send file";
+    const char *select_file_prefix = "select file";
+    const char *send_file_prefix = "send file";
     const char *exit = "exit";
 
-    if (strncmp(str, selectFilePrefix, strlen(selectFilePrefix)) == 0)
+    if (strncmp(str, select_file_prefix, strlen(select_file_prefix)) == 0)
     {
 
-        *remainingString = strdup(str + strlen(selectFilePrefix) + 1);
+        *remaining_string = strdup(str + strlen(select_file_prefix) + 1);
 
-        size_t length = strlen(*remainingString);
-        if (length > 0 && (*remainingString)[length - 1] == '\n')
+        size_t length = strlen(*remaining_string);
+        if (length > 0 && (*remaining_string)[length - 1] == '\n')
         {
-            (*remainingString)[length - 1] = '\0';
+            (*remaining_string)[length - 1] = '\0';
         }
 
         return 1;
     }
-
-    else if (strncmp(str, sendFilePrefix, strlen(sendFilePrefix)) == 0)
+    else if (strncmp(str, send_file_prefix, strlen(send_file_prefix)) == 0)
     {
-
         return 0;
     }
     else if (strncmp(str, exit, strlen(exit)) == 0)
     {
         return 2;
     }
-
     return -1;
 }
+/*
+checks if a given file name ends with a valid extension
+char * str = a file name
+returns 1 if true , 0 if false
+*/
 int valid_extension(const char *str)
 {
     const char *validExtensions[] = {".txt", ".c", ".cpp", ".py", ".tex", ".java"};
@@ -81,11 +96,9 @@ int valid_extension(const char *str)
 
     int length = strlen(str);
 
-    if (length >= 4)
+    const char *extension = strrchr(str, '.');
+    if (extension != NULL)
     {
-        // const char* lastFourChars = str + length - 4;
-        const char *extension = strrchr(str, '.');
-
         for (int i = 0; i < numValidExtensions; i++)
         {
             if (strcmp(extension, validExtensions[i]) == 0)
@@ -97,9 +110,12 @@ int valid_extension(const char *str)
 
     return 0; // False
 }
-#include <stdio.h>
-#include <stdlib.h>
 
+/*
+reads a whole file and copies it to a string
+char * filename = name of the file to be read
+returns alloacated string with content of the whole file
+*/
 char *file_to_string(const char *filename)
 {
     FILE *file = fopen(filename, "rb");
@@ -110,10 +126,10 @@ char *file_to_string(const char *filename)
     }
 
     fseek(file, 0, SEEK_END);
-    long fileLength = ftell(file);
+    long file_length = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    char *buffer = (char *)malloc(fileLength + 1);
+    char *buffer = (char *)malloc(file_length + 1);
     if (buffer == NULL)
     {
         fprintf(stderr, "Failed to allocate memory for file contents.\n");
@@ -121,15 +137,14 @@ char *file_to_string(const char *filename)
         return NULL;
     }
 
-    size_t bytesRead = fread(buffer, 1, fileLength, file);
-    if (bytesRead != fileLength)
+    size_t bytes_read = fread(buffer, 1, file_length, file);
+    if (bytes_read != file_length)
     {
         fprintf(stderr, "Error reading file: %s\n", filename);
         fclose(file);
         free(buffer);
         return NULL;
     }
-    buffer[fileLength] = '\0';
 
     fclose(file);
     return buffer;
@@ -141,20 +156,18 @@ int main(int argc, char **argv)
     {
         usage(argc, argv);
     }
-
-    // printf("connected to %s\n", addrstr);
     int file_selected = 0;
     char *file_name;
     while (1)
     {
         char buf[BUFSZ];
         memset(buf, 0, BUFSZ);
-        // printf("Comando ");
         fgets(buf, BUFSZ - 1, stdin);
 
+        // getting comand type and file name
         int command_type = divide_string(buf, &file_name);
-        // select file
 
+        // select file
         if (command_type == 1)
         {
             if (!valid_extension(file_name))
@@ -173,12 +186,13 @@ int main(int argc, char **argv)
                 printf("%s selected \n", file_name);
             }
         }
+        // send file
         else if (command_type == 0)
         {
-
+            // valid file selected
             if (file_selected == 1)
             {
-
+                // creating socket
                 struct sockaddr_storage storage;
                 if (0 != addrparse(argv[1], argv[2], &storage))
                 {
@@ -197,18 +211,18 @@ int main(int argc, char **argv)
                     logexit("connect");
                 }
 
-                char addrstr[BUFSZ];
-                addrtostr(addr, addrstr, BUFSZ);
-
+                // creating body and header of message to be sent
                 char *file_content = file_to_string(file_name);
-                char *msg_to_send = concatenateStrings(file_name, file_content);
-                // printf("----- %s---- \n",msg_to_send);
+                char *msg_to_send = concatenate_strings(file_name, file_content);
+
+                // sending message
                 size_t count = send(s, msg_to_send, strlen(msg_to_send) + 1, 0);
                 if (count != strlen(msg_to_send) + 1)
                 {
                     logexit("send");
                 }
 
+                // waiting for response
                 memset(buf, 0, BUFSZ);
                 unsigned total = 0;
                 while (1)
@@ -216,13 +230,14 @@ int main(int argc, char **argv)
                     count = recv(s, buf + total, BUFSZ - total, 0);
                     if (count == 0)
                     {
-                        // Connection terminated.
                         break;
                     }
                     total += count;
                 }
+                // printing response and closing connection
                 printf("%s\n", buf);
                 close(s);
+                free(file_content);
             }
             else
             {
@@ -231,6 +246,7 @@ int main(int argc, char **argv)
         }
         else if (command_type == 2)
         {
+            // creating connection
             struct sockaddr_storage storage;
             if (0 != addrparse(argv[1], argv[2], &storage))
             {
@@ -249,13 +265,12 @@ int main(int argc, char **argv)
                 logexit("connect");
             }
 
-            char addrstr[BUFSZ];
-            addrtostr(addr, addrstr, BUFSZ);
-
+            // creating exit message
             char msg_buf[BUFSZ];
             memset(msg_buf, 0, BUFSIZ);
             strcpy(msg_buf, "exit\\end");
 
+            // sending exit message;
             size_t count = send(s, msg_buf, 10, 0);
 
             if (count != 10)
@@ -270,15 +285,17 @@ int main(int argc, char **argv)
                 count = recv(s, buf + total, BUFSZ - total, 0);
                 if (count == 0)
                 {
-                    // Connection terminated.
+
                     break;
                 }
                 total += count;
             }
+            // closing conection and printing anser
             printf("%s\n", buf);
             close(s);
             break;
         }
+      
     }
 
     exit(EXIT_SUCCESS);

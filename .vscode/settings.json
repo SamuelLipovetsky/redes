@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "functional": "c",
-        "socket.h": "c"
+        "socket.h": "c",
+        "string_view": "c",
+        "unistd.h": "c"
     }
 }

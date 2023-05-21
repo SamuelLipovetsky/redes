@@ -17,31 +17,41 @@ void usage(int argc, char **argv)
     exit(EXIT_FAILURE);
 }
 
+/*
+recovers file name from full message received
+char * str = string of full message received
+returns the full name of file to be created
+*/
 char *get_full_filename(const char *str)
 {
 
     const char *patterns[] = {".txt", ".c", ".cpp", ".py", ".tex", ".java"};
-    int numPatterns = 6;
+    int num_patterns = 6;
 
     char *result = NULL;
 
-    const char *dotPosition = strrchr(str, '.');
-    int name_size = dotPosition - str;
 
-    if (dotPosition != NULL)
+    const char *dot_position = strrchr(str, '.');
+    if (dot_position == NULL)
+    {
+        return NULL;
+    }
+    int name_size = dot_position - str;
+
+    if (dot_position != NULL)
     {
         // Get the substring starting from the dot position
-        const char *substring = dotPosition;
+        const char *substring = dot_position;
 
         // Find the first matching pattern
-        for (int i = 0; i < numPatterns; i++)
+        for (int i = 0; i < num_patterns; i++)
         {
-            int patternLength = strlen(patterns[i]);
+            int pattern_length = strlen(patterns[i]);
 
-            if (strncmp(substring, patterns[i], patternLength) == 0)
+            if (strncmp(substring, patterns[i], pattern_length) == 0)
             {
 
-                int total_size = name_size + patternLength + 1;
+                int total_size = name_size + pattern_length + 1;
                 result = (char *)calloc(5, (total_size + 1) * sizeof(char));
                 strncpy(result, str, total_size - 1);
 
@@ -52,19 +62,23 @@ char *get_full_filename(const char *str)
 
     return result;
 }
-void createFile(const char *fileName, const char *fileContent)
+/*
+simple fucntion to create a file
+char *file_name = name of the file to be created
+char *file_content = content of file to be created
+*/
+void create_file(const char *file_name, const char *file_content)
 {
-    FILE *file = fopen(fileName, "w");
+    FILE *file = fopen(file_name, "w");
     if (file == NULL)
     {
-        fprintf(stderr, "Failed to create file: %s\n", fileName);
+
         return;
     }
 
-    fprintf(file, "%s", fileContent);
+    fprintf(file, "%s", file_content);
 
     fclose(file);
-    printf("File created successfully: %s\n", fileName);
 }
 
 int main(int argc, char **argv)
@@ -110,7 +124,6 @@ int main(int argc, char **argv)
     char buf[BUFSZ];
     while (1)
     {
-
         int csock = accept(s, caddr, &caddrlen);
         if (csock == -1)
         {
@@ -118,45 +131,62 @@ int main(int argc, char **argv)
         }
 
         memset(buf, 0, BUFSIZ);
-
-        size_t count = recv(csock, buf, BUFSZ - 1, 0);
-
-        char *full_file_name = get_full_filename(buf);
-
+        char answer[100];
+        char *full_file_name;
+        // flags for exiting/overwritten messages
         int exit = 1;
         int already_exists = 0;
 
-        if (access(full_file_name, F_OK) != -1)
+        size_t count = recv(csock, buf, BUFSZ - 1, 0);
+        if (count == -1)
         {
-            already_exists = 1;
+            memset(answer, 0, 100);
+            strcpy(answer, "error receiving file");
+            exit = 0;
         }
-        char file_content[BUFSIZ];
-        memset(file_content, 0, BUFSIZ);
-        if (strcmp(buf, "exit\\end"))
-        {
-            exit=0;
-            // removing the name from message
-            strcpy(file_content, buf + strlen(full_file_name));
 
-            // removing the \end from message
-            char *slashPtr = strchr(file_content, '\\');
-            if (slashPtr != NULL)
+        else
+        {
+            full_file_name = get_full_filename(buf);
+            if (full_file_name != NULL)
             {
-                *slashPtr = '\0';
-            }
-          
-            createFile(full_file_name, file_content);
-        }
-        char answer[100];
+                //checking if file already exissts
+                if (access(full_file_name, F_OK) != -1)
+                {
+                    already_exists = 1;
+                }
+                char file_content[BUFSIZ];
+                memset(file_content, 0, BUFSIZ);
 
+                //checking for exit command
+                if (strcmp(buf, "exit\\end"))
+                {
+                    exit = 0;
+                    // removing the name from message
+                    strcpy(file_content, buf + strlen(full_file_name));
+
+                    // removing the \end from message
+                    char *slashPtr = strchr(file_content, '\\');
+                    if (slashPtr != NULL)
+                    {
+                        *slashPtr = '\0';
+                    }
+                    //writing file
+                    create_file(full_file_name, file_content);
+                }
+            }
+            else
+            {
+                exit = 1;
+            }
+        }
+        //defining answer to be sent
         if (exit)
         {
-
             memset(answer, 0, 100);
             strcpy(answer, "connection closed");
             printf("connection closed\n");
 
-            // break;
         }
         else if (already_exists)
         {
@@ -164,16 +194,17 @@ int main(int argc, char **argv)
             strcat(answer, "file ");
             strcat(answer, full_file_name);
             strcat(answer, " file overwritten");
+            printf("%s\n", answer);
         }
         else
         {
             memset(answer, 0, 100);
-
             strcat(answer, "file ");
             strcat(answer, full_file_name);
             strcat(answer, " received");
+            printf("%s\n", answer);
         }
-
+        //sending answer
         count = send(csock, answer, strlen(answer) + 1, 0);
         if (count != strlen(answer) + 1)
         {
@@ -183,6 +214,7 @@ int main(int argc, char **argv)
         free(full_file_name);
 
         close(csock);
+        //ending conectionf if exit flag 
         if (exit)
         {
             close(s);
