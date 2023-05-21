@@ -52,9 +52,9 @@ char *get_full_filename(const char *str)
 
     return result;
 }
-void create_update_file(const char *fileName, const char *fileContent, char mode[1])
+void createFile(const char *fileName, const char *fileContent)
 {
-    FILE *file = fopen(fileName, mode);
+    FILE *file = fopen(fileName, "w");
     if (file == NULL)
     {
         fprintf(stderr, "Failed to create file: %s\n", fileName);
@@ -64,11 +64,11 @@ void create_update_file(const char *fileName, const char *fileContent, char mode
     fprintf(file, "%s", fileContent);
 
     fclose(file);
+    printf("File created successfully: %s\n", fileName);
 }
 
 int main(int argc, char **argv)
 {
-
     if (argc < 3)
     {
         usage(argc, argv);
@@ -108,7 +108,6 @@ int main(int argc, char **argv)
     struct sockaddr *caddr = (struct sockaddr *)(&cstorage);
     socklen_t caddrlen = sizeof(cstorage);
     char buf[BUFSZ];
-
     while (1)
     {
 
@@ -117,73 +116,37 @@ int main(int argc, char **argv)
         {
             logexit("accept");
         }
-        char *full_file_name;
+
         memset(buf, 0, BUFSIZ);
-        // reads the first message that should contain the name of the file
 
-        size_t count = recv(csock, buf, 501, 0);
+        size_t count = recv(csock, buf, BUFSZ - 1, 0);
 
-        // flag for exit command
+        char *full_file_name = get_full_filename(buf);
+
         int exit = 1;
-        // flag for already existing files
         int already_exists = 0;
-        // checks for exit command
-    
+
+        if (access(full_file_name, F_OK) != -1)
+        {
+            already_exists = 1;
+        }
+        char file_content[BUFSIZ];
+        memset(file_content, 0, BUFSIZ);
         if (strcmp(buf, "exit\\end"))
         {
-          //no exit command  
-
-            exit = 0;
-            full_file_name = get_full_filename(buf);
-
-            // removing complete path of filename
-            char *file_name = strrchr(full_file_name, '/');
-            file_name++;
-
-            if (access(file_name, F_OK) != -1)
-            {
-                already_exists = 1;
-            }
-            char file_content[BUFSIZ];
+            exit=0;
             // removing the name from message
             strcpy(file_content, buf + strlen(full_file_name));
-            if (count > 500)
+
+            // removing the \end from message
+            char *slashPtr = strchr(file_content, '\\');
+            if (slashPtr != NULL)
             {
-                create_update_file(file_name, file_content, "w");
-
-                while (1)
-                {
-                    memset(buf, 0, BUFSIZ);
-                    size_t count = recv(csock, buf, 501, 0);
-
-                    char *end = strrchr(buf, '\\');
-                    if (end != NULL)
-                    {
-                        char *slashPtr = strchr(buf, '\\');
-                        if (slashPtr != NULL)
-                        {
-                            *slashPtr = '\0';
-                        }
-                        create_update_file(file_name, buf, "a");
-                        break;
-                    }
-                    // no end found
-                    create_update_file(file_name, buf, "a");
-                }
+                *slashPtr = '\0';
             }
-            else
-            {
-
-                char *end = strrchr(file_content, '/');
-                if (end != NULL)
-                {
-                        *end= '\0';
-                    
-                }
-                create_update_file(file_name, file_content, "w");
-            }
+          
+            createFile(full_file_name, file_content);
         }
-
         char answer[100];
 
         if (exit)
@@ -198,16 +161,16 @@ int main(int argc, char **argv)
         else if (already_exists)
         {
             memset(answer, 0, 100);
-            strcat(answer,"file ");
+            strcat(answer, "file ");
             strcat(answer, full_file_name);
             strcat(answer, " file overwritten");
         }
         else
-        {   
+        {
             memset(answer, 0, 100);
 
-            strcat(answer,"file ");
-            strcat(answer, full_file_name); 
+            strcat(answer, "file ");
+            strcat(answer, full_file_name);
             strcat(answer, " received");
         }
 
